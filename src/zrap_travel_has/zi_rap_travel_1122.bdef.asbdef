@@ -1,0 +1,110 @@
+managed; //implementation in class zbp_i_rap_travel_1122 unique;
+with draft; //strict ( 2 );
+
+define behavior for ZI_RAP_Travel_1122 alias Travel
+implementation in class zbp_i_rap_travel_1122 unique
+persistent table zrap_atrav_1122
+draft table zrap_dtrav_1122
+lock master total etag LastChangedAt
+authorization master ( instance )
+etag master LocalLastChangedAt
+{
+  create;
+  update;
+  delete;
+  association _Booking { create; with draft; }
+
+  //"Static field control
+  field ( numbering : managed, readonly ) TravelUUID;
+  field ( readonly ) TravelId, TotalPrice, TravelStatus;
+  field ( readonly ) LastChangedAt, LastChangedBy, CreatedAt, CreatedBy, LocalLastChangedAt;
+  field ( mandatory ) AgencyID, CustomerID;
+
+  //"accept and reject for actions with Dynamic feature control
+  action ( features : instance ) acceptTravel result [1] $self;
+  action ( features : instance ) rejectTravel result [1] $self;
+  internal action recalcTotalPrice;
+
+  //" Yeni instance oluşturulduğunda, bu determination statusu varsayılan 'n' olarak ayarlamak için kullanılır.
+  //" modify sırasında tetikleyici (Trigger) oluşturmak için kullanır.
+  determination setInitalStatus     on modify { create; }
+  //"bu determination, bookingfee veya currencycode değiştiğinde total price'ı güncellemek için kullanılır.
+  determination calculateTotalPrice on modify { field BookingFee, CurrencyCode; }
+  //"bu determination yeni instance oluşturulduğunda travelid belirlemek için kullanılır. Kaydedildiğinde yürütülür.
+  //"travelid yanlızca gösterim amaçlı kullanılır travel iş nesnesinin primary keyi hala TravelUUID'dir.
+  determination calculateTravelID   on save { create; }
+
+  //"Validate (doğrulama) için 3 validation kullanıyoruz.AgencyId, CustomerId, begin date ve end date.
+  //"Hepsi kaydetme (save) sırasında tetiklenir.
+  validation validateAgency   on save { field AgencyID; create; }
+  validation validateCustomer on save { field CustomerID; create; }
+  validation validateDates    on save { field BeginDAte, EndDate; create; }
+
+  draft determine action Prepare {
+    validation validateAgency;
+    validation validateCustomer;
+    validation validateDates;
+  }
+
+  mapping for zrap_atrav_1122
+    {
+      TravelUUID         = travel_uuid;
+      TravelID           = travel_id;
+      AgencyID           = agency_id;
+      CustomerID         = customer_id;
+      BeginDate          = begin_date;
+      EndDate            = end_date;
+      BookingFee         = booking_fee;
+      TotalPrice         = total_price;
+      CurrencyCode       = currency_code;
+      Description        = description;
+      TravelStatus       = overall_status;
+      CreatedBy          = created_by;
+      CreatedAt          = created_at;
+      LastChangedBy      = last_changed_by;
+      LastChangedAt      = last_changed_at;
+      LocalLastChangedAt = local_last_changed_at;
+    }
+}
+
+define behavior for ZI_RAP_Booking_1122 alias Booking
+implementation in class zbp_i_rap_booking_1122 unique
+persistent table zrap_abook_1122
+draft table zrap_dbook_1122
+lock dependent by _Travel
+authorization dependent by _Travel
+etag master LocalLastChangedAt
+{
+  update;
+  delete;
+  association _Travel { with draft; }
+
+  //"Static field control
+  field ( numbering : managed, readonly ) BookingUUID;
+  field ( readonly ) TravelUUID, BookingID;
+  field ( readonly ) CreatedBy, LastChangedBy, LocalLastChangedAt;
+
+  //"bu determinationı kullanıyoruz, booking ID belirlemek için.
+  determination calculateBookingID   on modify { create; }
+  //"Totalprice'ı güncellemek için bu determination'ı ekliyoruz.
+  //"Flightprice ve currencycode modify edildiğinde tetiklenir.
+  determination calculateTotalPrice on modify { field FlightPrice, CurrencyCode; }
+
+  mapping for zrap_abook_1122
+    {
+      BookingUUID        = booking_uuid;
+      TravelUUID         = travel_uuid;
+      BookingID          = booking_id;
+      BookingDate        = booking_date;
+      CustomerID         = customer_id;
+      CarrierID          = carrier_id;
+      ConnectionID       = connection_id;
+      FlightDate         = flight_date;
+      FlightPrice        = flight_price;
+      CurrencyCode       = currency_code;
+      CreatedBy          = created_by;
+      LastChangedBy      = last_changed_by;
+      LocalLastChangedAt = local_last_changed_at;
+    }
+
+}

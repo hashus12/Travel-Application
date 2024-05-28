@@ -1,0 +1,26 @@
+projection;
+use draft; //strict ( 2 ); //Uncomment this line in order to enable strict mode 2. The strict mode has two variants (strict(1), strict(2)) and is prerequisite to be future proof regarding syntax and to be able to release your BO.
+
+define behavior for ZC_RAP_Travel_1122 alias Travel
+//şu an için Odata v2 için fiori elements ui şu anda ETag'ın işlenmesini desteklememektedir.
+//use etag
+{
+  use create;
+  use update;
+  use delete;
+
+  use association _Booking { create; with draft; }
+
+  use action acceptTravel;
+  use action rejectTravel;
+}
+
+define behavior for ZC_RAP_Booking_1122 alias Booking
+//use etag
+{
+  use update;
+  use delete;
+
+  use association _Travel { with draft; }
+
+}
