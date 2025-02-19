@@ -9,9 +9,9 @@ https://github.com/SAP-samples/abap-platform-rap-opensap/blob/main/README.md
 
 NOT: Veriler demodur!  
 Bu 3 pakette seyahat uygulaması ancak farklı senaryolar ile uygulanması bulunmaktadır.  
-zrap_travel_has paketi managed senaryo ile uygulanmıştır create update delete gibi operasyonlar framework tarafından ele alınır.  
-zrap_travel_u_has paketi unmanaged seneryo ile uygulanmıştır create update delete gibi operasyonlar BAPI yardımıyla kullanılmıştır.  
-zrap_travel_e_has paketi agencyid alanı için değer yardımı verileri dış kaynaktan çekilir.
+* zrap_travel_has paketi managed senaryo ile uygulanmıştır create update delete gibi operasyonlar framework tarafından ele alınır.  
+* zrap_travel_u_has paketi unmanaged seneryo ile uygulanmıştır create update delete gibi operasyonlar BAPI yardımıyla kullanılmıştır.  
+* zrap_travel_e_has paketi agencyid alanı için değer yardımı verileri dış kaynaktan çekilir.
 
 Uygulamanın Çalışma Adımları: 
 
